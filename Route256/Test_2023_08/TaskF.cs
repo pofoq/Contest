@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,7 +17,68 @@ namespace Route256.Test_2023_08
 
             for (var i = 0; i < caseCount; i++)
             {
+                var periodCount = int.Parse(Console.ReadLine()!);
+                var periods = new List<Period>();
+                var isValid = true;
+                for (int j = 0; j < periodCount; j++)
+                {
+                    var tempArr = Console.ReadLine()!.Split('-').ToArray();
+                    if (isValid
+                        && TimeSpan.TryParse($"0:{tempArr[0]}", out var start) 
+                        && TimeSpan.TryParse($"0:{tempArr[1]}", out var end)
+                        && start.Hours < 24
+                        && end.Hours < 24
+                        && start <= end)
+                    {
+                        periods.Add(new Period(start, end));
+                    }
+                    else if (isValid)
+                    {
+                        isValid = false;
+                    }
+                }
 
+                if (isValid && periodCount > 1)
+                {
+                    //periods.Sort((x, y) => TimeSpan.Compare(x.Start, y.Start));
+                    periods.Sort();
+                    var current = periods[periodCount - 1];
+                    Period next;
+
+                    for (var j = 0; j < periods.Count; j++)
+                    {
+                        next = periods[j];
+                        if (!current.CheckNextPeriod(next))
+                        {
+                            isValid = false;
+                            break;
+                        }
+                        current = next;
+                    }
+                }
+
+                Console.WriteLine(isValid ? "YES" : "NO");
+            }
+        }
+        struct Period : IComparable<Period>
+        {
+            public TimeSpan Start { get; set; }
+            public TimeSpan End { get; set; }
+            public Period(TimeSpan start, TimeSpan end)
+            {
+                Start = start;//.Equals(TimeSpan.FromSeconds(0)) ? TimeSpan.FromDays(1) : start;
+                End = end;//.Equals(TimeSpan.FromSeconds(0)) ? TimeSpan.FromDays(1) : end;
+            }
+
+            public readonly bool CheckNextPeriod(Period next)
+            {
+                return Start > next.End && End > next.End
+                    || Start < next.Start && End < next.Start;
+            }
+
+            public readonly int CompareTo(Period other)
+            {
+                return TimeSpan.Compare(Start, other.Start);
             }
         }
     }

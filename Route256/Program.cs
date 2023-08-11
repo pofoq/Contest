@@ -5,4 +5,5 @@ using Route256.Test_2023_08;
 //new TaskB().Run();
 //new TaskC().Run();
 //new TaskD().Run();
-new TaskE().Run();
+//new TaskE().Run();
+new TaskF().Run();
