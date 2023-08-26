@@ -57,27 +57,6 @@ namespace Route256.Sandbox
                         return;
                     }
                     hex.IsChecked = true;
-                    //if (hex.Id % 10 + 2 <= length) 
-                    //    if(!Check(map, color, map[hex.Id + 2], cts))
-                    //    {
-                    //        cts.Cancel();
-                    //        return false;
-                    //    }
-                    //if (hex.Id / 10 > rows)
-                    //{
-                    //    if (hex.Id % 10 - 1 > 0)
-                    //        if (!Check(map, color, map[hex.Id - 11], cts))
-                    //        {
-                    //            cts.Cancel();
-                    //            return false;
-                    //        }
-                    //    if (hex.Id % 10 + 1 <= length)
-                    //        if (!Check(map, color, map[hex.Id + 11], cts))
-                    //        {
-                    //            cts.Cancel();
-                    //            return false;
-                    //        }
-                    //}
                     foreach (var nextId in hex.Next)
                     {
                         Check(map, color, map[nextId], cts);

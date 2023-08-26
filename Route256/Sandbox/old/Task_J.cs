@@ -9,6 +9,40 @@ namespace TestConsole
     {
         public void Main(string[] args)
         {
+            var dictionaryLength = int.Parse(Console.ReadLine()!);
+            var dictionary = new Dictionary<string, List<string>>();
+            for (var i = 0; i < dictionaryLength; i++)
+            {
+                var word = Console.ReadLine()!;
+                for (var j = 0; j < word.Length; j++)
+                {
+                    var suffix = word.Substring(j, word.Length - j);
+                    if (!dictionary.TryAdd(suffix, new List<string> { word }))
+                        dictionary[suffix].Add(word);
+                }
+            }
+
+            var requestCount = int.Parse(Console.ReadLine()!);
+            // using var writer = new StreamWriter(@"D:\Desktop\output.txt");
+            // Console.SetOut(writer);
+            for (var i = 0; i < requestCount; i++)
+            {
+                var word = Console.ReadLine()!;
+                for (var j = 0; j < word.Length; j++)
+                {
+                    if (dictionary.TryGetValue(word.Substring(j, word.Length - j), out var dictionaryWords) &&
+                        dictionaryWords.Any(w => w != word))
+                    {
+                        Console.WriteLine(dictionaryWords.First(w => w != word));
+                        break;
+                    }
+
+                    if (j == word.Length - 1)
+                    {
+                        Console.WriteLine(dictionary.First(pair => pair.Value.Contains(pair.Key) && pair.Key != word).Key);
+                    }
+                }
+            }
         }
     }
 }
