@@ -6,52 +6,92 @@ namespace Route256.Sandbox
     {
         public void Run()
         {
+            const string vowels = "aeiouy";
+
+            static List<string> GetSufixes(string word, bool isAlternative = false)
+            {
+                var list = new List<string>();
+                var isVowel = vowels.Contains(word[^1]);
+
+                for (var j = word.Length - 1; j > 0; j--)
+                {
+                    list.Add(word[j..]);
+                    if (isVowel && j - 1 > 0)
+                    {
+                        list.Add(word.Substring(j - 1, word.Length - (j - 1) - 1));
+                    }
+                }
+                if (isVowel)
+                {
+                    for (var j = word.Length - 1; j > 0; j--)
+                    {
+                        list.Add(word[j..]);
+                        if (isVowel && j - 1 > 0)
+                        {
+                            list.Add(word.Substring(j - 1, word.Length - (j - 1) - 1));
+                        }
+                    }
+                }
+                return list;
+            }
+
             var dictLength = int.Parse(Console.ReadLine()!);
 
-            var words = new Dictionary<string, string>();
+            var words = new Dictionary<string, List<string>>();
             for (var i = 0; i < dictLength; i++)
             {
-                var str = Console.ReadLine()!;
-                var arr = str.ToArray();
-                Array.Reverse(arr);
-                words.Add(str, new string(arr));
+                var word = Console.ReadLine()!;
+                words.Add(word, GetSufixes(word));
             }
 
             var queryCount = int.Parse(Console.ReadLine()!);
             for (var i = 0; i < queryCount; i++)
             {
                 var query = Console.ReadLine()!;
-                var arr = query.ToArray();
-                Array.Reverse(arr);
-                var str = new string(arr);
+                var isVowel = vowels.Contains(query[^1]);
+                var sufixes = GetSufixes(query);
 
-                var tempArr = words.Where(x => x.Key != query && x.Value[0].Equals(arr[0])).ToDictionary(x => x.Key, x => x.Value);
-                string? result = null;
-                if (tempArr.Count == 0)
+                var t1 = query[^1];
+                var t2 = query[^2];
+
+                var tempList = words
+                    .Where(d => d.Key != query && d.Value.Any(s => s.Equals(query[^1].ToString())))
+                    .ToList();
+
+                if (tempList.Count == 0 && isVowel)
                 {
-                    tempArr = words.Where(x => x.Value[1].Equals(arr[0]) && x.Key != query).ToDictionary(x => x.Key, x => x.Value);
+                    tempList = words
+                        .Where(d => d.Key != query && d.Value.Any(s => s.Equals(query[^2].ToString())))
+                        .ToList();
                 }
-                if (tempArr.Count == 0)
+                if (tempList.Count == 0)
                 {
-                    result = words.First().Key;
+                    continue;
                 }
-                else if (tempArr.Count == 1)
+                if (tempList.Count == 1)
                 {
-                    result = tempArr.First().Key;
+                    Console.WriteLine(tempList[0].Key);
+                    continue;
                 }
                 else
                 {
-                    var j = 1;
-                    while (tempArr?.Count > 1 && j < query.Length)
+                    string result = "";
+                    for (var j = 1; j < query.Length; j++)
                     {
-                        result = tempArr.First().Key;
-                        tempArr = words.Where(x => x.Value[j].Equals(arr[j])).ToDictionary(x => x.Key, x => x.Value);
-                        j++;
+                        result = tempList[0].Key;
+                        tempList = tempList
+                            .Where(d => d.Key != query && (d.Value.Any(s => s.Equals(query[j..])) || isVowel && d.Value.Any(s => s.Equals(query[^2].ToString()))))
+                            .ToList();
+                        if (tempList.Count == 0)
+                        {
+                            break;
+                        }
+                        if (tempList.Count == 1)
+                        {
+                            result = tempList[0].Key;
+                            break;
+                        }
                     }
-                }
-
-                if (!string.IsNullOrEmpty(result))
-                {
                     Console.WriteLine(result);
                 }
             }
